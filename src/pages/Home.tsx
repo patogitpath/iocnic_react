@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
 
 const Home: React.FC = () => {
+
+  useEffect(() => {
+    
+  });
+
   return (
     <IonPage>
       <IonHeader>
