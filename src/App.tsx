@@ -24,6 +24,8 @@ import './theme/variables.css';
 import AuthorList from './pages/Author_List';
 import Menu from "./pages/Menu";
 import NewAuthor from './pages/New_Author';
+import EdithAuthor from './pages/Edith_Author';
+
 
 const App: React.FC = () => (
   <IonApp>
@@ -35,6 +37,7 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/authors" component={AuthorList}></Route>
         <Route exact path="/newauthor" component={NewAuthor}></Route>
+        <Route exact path="/edith-author/:id" component={EdithAuthor} />
         <Route exact path="/">
           <Redirect to="/authors" />
         </Route>

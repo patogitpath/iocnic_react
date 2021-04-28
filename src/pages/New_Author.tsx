@@ -1,30 +1,56 @@
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar } from "@ionic/react";
-import { Component } from "react";
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar, withIonLifeCycle } from "@ionic/react";
+import axios from "axios";
+import React, { Component } from "react";
+import links from "../services/links";
+import { Redirect, RouteComponentProps } from "react-router-dom";
 
-export class NewAuthor extends Component {
+interface Props {
+
+}
+
+export class NewAuthor extends Component<Props & RouteComponentProps> {
 
     state = {
         name: '',
         apellido: '',
-        edad: 0
+        edad: ""
     };
 
-
-    componentDidMount() {
-
+    ionViewWillEnter() {
+        console.log("gorm");
+        this.setState({
+            name: "",
+            apellido: "",
+            edad: ""
+        });
 
     }
 
     changeText(e: any) {
-        console.log("mensaje");
+
         const {name, value} = e.target;
         this.setState({[name]: value});
 
     }
 
-    submitForm(e: any) {
-        console.log("mensajes");
+    async submitForm(e: any) {
+        
         console.log(this.state);
+        try {
+            
+            let author = {
+                "name": this.state.name,
+                "apellido": this.state.apellido,
+                "edad": this.state.edad
+            };
+
+            const data = await axios.post(links.postNewAuthor, author);
+            this.props.history.push("/");
+
+        } catch (error) {
+            
+            console.log(error);
+        }
     }
 
     render() {
@@ -34,7 +60,7 @@ export class NewAuthor extends Component {
                     <IonToolbar color="primary">
                         <IonTitle>New Author</IonTitle>
                         <IonButtons slot="start">
-                            <IonBackButton defaultHref={"/"}></IonBackButton>
+                            <IonBackButton defaultHref="/"></IonBackButton>
                         </IonButtons>
                     </IonToolbar>
                 </IonHeader>
@@ -45,17 +71,17 @@ export class NewAuthor extends Component {
                                 <IonCol>
                                     <IonItem className="ion-margin-bottom">
                                         <IonLabel position="stacked">Name</IonLabel>
-                                        <IonInput type="text" name="name" placeholder="name" onIonChange={this.changeText.bind(this)}></IonInput>
+                                        <IonInput type="text" name="name" placeholder="name" value={this.state.name} onIonChange={this.changeText.bind(this)}></IonInput>
                                     </IonItem>
                                     <IonItem className="ion-margin-bottom">
                                         <IonLabel position="stacked">Apellido</IonLabel>
-                                        <IonInput type="text" name="apellido" placeholder="apellido" onIonChange={this.changeText.bind(this)}></IonInput>
+                                        <IonInput type="text" name="apellido" placeholder="apellido" value={this.state.apellido} onIonChange={this.changeText.bind(this)}></IonInput>
                                     </IonItem>
                                     <IonItem className="ion-margin-bottom">
                                         <IonLabel position="stacked">Edad</IonLabel>
-                                        <IonInput type="number" name="edad" placeholder="edad" onIonChange={this.changeText.bind(this)}></IonInput>
+                                        <IonInput type="number" name="edad" placeholder="edad" value={this.state.edad} onIonChange={this.changeText.bind(this)}></IonInput>
                                     </IonItem>
-                                    <IonButton expand="block" color="primary" onClick={this.submitForm.bind(this)}>Save</IonButton>
+                                    <IonButton expand="block" color="primary"  onClick={this.submitForm.bind(this)}>Save</IonButton>
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
@@ -66,4 +92,4 @@ export class NewAuthor extends Component {
     }
 }
 
-export default NewAuthor;
+export default withIonLifeCycle(NewAuthor);
