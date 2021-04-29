@@ -25,6 +25,8 @@ import AuthorList from './pages/Author_List';
 import Menu from "./pages/Menu";
 import NewAuthor from './pages/New_Author';
 import EdithAuthor from './pages/Edith_Author';
+import NewBook  from './pages/New_Book';
+import EdithBook from './pages/Edit_Book';
 
 
 const App: React.FC = () => (
@@ -38,6 +40,8 @@ const App: React.FC = () => (
         <Route exact path="/authors" component={AuthorList}></Route>
         <Route exact path="/newauthor" component={NewAuthor}></Route>
         <Route exact path="/edith-author/:id" component={EdithAuthor} />
+        <Route exact path="/edith-book/:id" component={ EdithBook }></Route>
+        <Route exact path="/newbook/:authorId" component={ NewBook }></Route>
         <Route exact path="/">
           <Redirect to="/authors" />
         </Route>
