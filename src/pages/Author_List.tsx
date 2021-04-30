@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { createOutline, trash, add } from "ionicons/icons";
-import { IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonTitle, IonToolbar, withIonLifeCycle, useIonAlert, IonAlert, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { createOutline, trash, add, infinite } from "ionicons/icons";
+import { IonAvatar, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonTitle, IonToolbar, withIonLifeCycle, useIonAlert, IonAlert, IonGrid, IonRow, IonCol, Animation, CreateAnimation } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Author_List.css';
 import axios from "axios";
@@ -12,8 +12,21 @@ export class AuthorList extends Component {
     state = {
         listAuthor: [],
         alertState: false,
+        alertStateBook: false,
         authorId: null,
-        disabledAccordion: []
+        bookId: null,
+        positionBookArray: null,
+        disabledAccordion: [],
+        animateDiv: {
+            enabled: false,
+            status: true,
+            props: {
+                property: 'height',
+                fromValue: '0px',
+                toValue:'50px'
+            }
+        },
+        estadio: false
     };
 
     async ionViewWillEnter() {
@@ -56,9 +69,32 @@ export class AuthorList extends Component {
             console.log(data);
             this.setState({
                 listAuthor: this.state.listAuthor.filter((a,i) => {
-                    return a["id"] !== id
+                    return a["authorList"]["id"] !== id
                 })                
             });
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    async deleteBook(id: any, position: any) {
+        
+
+        try {
+            
+            const data = await axios.post(links.deleteBook, { id: id });
+            console.log(data);
+            let bookArray: any[] = this.state.listAuthor[position]["books"];
+            bookArray = bookArray.filter((b, i) => {
+                return b.id !== id;
+            });
+            let authorList: any[] = this.state.listAuthor;
+            authorList[position].books = bookArray;
+            this.setState({
+                listAuthor: authorList
+            });
+
         } catch (error) {
             console.log(error);
         }
@@ -76,6 +112,32 @@ export class AuthorList extends Component {
     render() {
 
         const alertas = (
+            <>
+            <IonAlert
+                isOpen={ this.state.alertStateBook }
+                cssClass="my-custom-class"
+                header="Eliminar"
+                message="Desea eliminar el libro"
+                buttons={[
+                    {
+                        text: "cancel",
+                        role: "Cancel",
+                        handler: (blah) => {
+                            this.setState({
+                                alertStateBook: false
+                            });
+                        }
+                    }, {
+                        text: "Ok",
+                        handler: () => {
+                            this.deleteBook(this.state.bookId, this.state.positionBookArray);
+                            this.setState({
+                                alertStateBook: false
+                            });
+                        }
+                    }
+                ]}
+            ></IonAlert>
             <IonAlert
                 isOpen={ this.state.alertState }
                 cssClass= "my-custom-class"
@@ -102,6 +164,7 @@ export class AuthorList extends Component {
                     }
                 ]}
             ></IonAlert>
+            </>
         );
 
         const authotRender = this.state.listAuthor.map((a, i) => {
@@ -147,7 +210,7 @@ export class AuthorList extends Component {
                                         <IonIcon icon={createOutline}></IonIcon>
                                     </IonButton>
                                 </Link>
-                                <IonButton color="danger" fill="clear">
+                                <IonButton color="danger" fill="clear" onClick={ () => { this.setState({ alertStateBook: true, bookId: book.id, positionBookArray: i }) } }>
                                     <IonIcon icon={trash}></IonIcon>
                                 </IonButton>
                             </IonButtons>
@@ -179,6 +242,28 @@ export class AuthorList extends Component {
                     {alertas}
                     <IonList>
                         <IonGrid className="ion-no-padding">
+                        <IonButton color="primary" onClick={() => {
+                            let propsAnimated: any = this.state.animateDiv.status ? { property: 'height', fromValue: '0px', toValue:'50px' } : { property: 'height', fromValue: '50px', toValue:'0px' };
+                            console.log(this.state.animateDiv.status);
+                            console.log(propsAnimated);
+                            this.setState({
+                                animateDiv: {
+                                    enabled: !this.state.animateDiv.enabled,
+                                    status: !this.state.animateDiv.status,
+                                    props: propsAnimated
+                                }
+                            });
+                        }}>animate</IonButton>
+                        <CreateAnimation 
+                            duration={500}
+                            fromTo={[ this.state.animateDiv.props ]}
+                            easing="ease-out"
+                            play={ this.state.animateDiv.enabled }
+                        >
+                            <div className="box">
+                                <h3>mensaje box</h3>
+                            </div>
+                        </CreateAnimation>
                         {authotRender}
                         </IonGrid>
                     </IonList>
