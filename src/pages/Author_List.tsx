@@ -11,21 +11,30 @@ export class AuthorList extends Component {
 
     state = {
         listAuthor: [],
+        scrollList: [],
         alertState: false,
         alertStateBook: false,
         authorId: null,
         bookId: null,
         positionBookArray: null,
         disabledAccordion: [],
+        direction: 'normal',
         animateDiv: {
             enabled: false,
-            status: true,
-            props: {
-                property: 'height',
-                fromValue: '0px',
-                toValue:'50px'
-            }
+            status: false,
+            props: { property: 'height', fromValue: '50px', toValue:'0px' }
         },
+        onFinish: { callback: () => {
+            console.log("end animation");
+            this.setState({
+                animateDiv: {
+                    enabled: false,
+                    status: this.state.animateDiv.status,
+                    props: {}
+                }
+            });            
+        }},
+        onFinishArray: [],
         estadio: false
     };
 
@@ -38,17 +47,46 @@ export class AuthorList extends Component {
             const data = await axios.post(links.getAllAuthor, {});
             const arrayAuthor: any[] = data.data.d;
             let disabledArray: any[] = [];
+            let scroList: any[] = [];
+            let onFinishArrayAnimated: any[] = [];
             arrayAuthor.map(async (author, i) => {
                 listAuthorComplete.push({ 
                     authorList: author.author,
                     books: author.bookList
                 });
+                scroList.push({
+                    author: author.author,
+                    animated: {
+                        enabled: false,
+                        status: false,
+                        props: { property: 'height', fromValue: '0px', toValue:'70px' }
+                    }
+                });
+                onFinishArrayAnimated.push({ callback: () => {
+                    console.log("end animation position " + i);
+                    let objectAnimatedPosition: any = {
+                        author: this.state.scrollList[i]["author"],
+                        animated: {
+                            enabled: false,
+                            status: this.state.scrollList[i]["animated"]["status"],
+                            props: {}
+                        }
+                    };
+
+                    let srollList: any[] = this.state.scrollList;
+                    srollList[i] = objectAnimatedPosition;
+                    this.setState({
+                        scrollList: srollList
+                    });
+                }});
                 disabledArray.push({ enabled: false });
             });
 
             this.setState({
                 listAuthor: listAuthorComplete,
-                disabledAccordion: disabledArray
+                disabledAccordion: disabledArray,
+                scrollList: scroList,
+                onFinishArray: onFinishArrayAnimated
             });
 
 
@@ -109,6 +147,24 @@ export class AuthorList extends Component {
         });
     }
 
+    playAnimation(index: any) {
+
+        let objectAnimatedPosition: any = {
+            author: this.state.scrollList[index]["author"],
+            animated: {
+                enabled: true,
+                status: !this.state.scrollList[index]["animated"]["status"],
+                props: {}
+            }
+        };;
+
+        let srollList: any[] = this.state.scrollList;
+        srollList[index] = objectAnimatedPosition;
+        this.setState({
+            scrollList: srollList
+        });
+    }
+
     render() {
 
         const alertas = (
@@ -166,6 +222,69 @@ export class AuthorList extends Component {
             ></IonAlert>
             </>
         );
+        
+        const scrollLista = this.state.scrollList.map((author, index) => {
+            return(
+                <IonRow key={index}>
+                    <IonCol size="12">
+                        <IonItem onClick={() => { this.playAnimation(index) }}>
+                            <IonAvatar slot="start">
+                                <img src="https://previews.123rf.com/images/indomercy/indomercy1701/indomercy170100075/68564332-creative-author-icon-color.jpg" alt="image" />
+                            </IonAvatar>
+                            <IonLabel>
+                                <h2>{ author["author"]["name"] }</h2>
+                                <h3>{ author["author"]["apellido"] }</h3>
+                                <p>{ author["author"]["edad"] }</p>
+                            </IonLabel>
+                        </IonItem>
+                    </IonCol>
+                    <IonCol size="12">
+                        <CreateAnimation
+                            duration={ 300 }
+                            fromTo={ author["animated"]["props"] }
+                            direction={ author["animated"]["status"] ? "normal" : "reverse" }
+                            easing="ease-out"
+                            play={ author["animated"]["enabled"] }
+                            onFinish={ this.state.onFinishArray[index] }
+                        >   
+                            <div className="box">
+                                <IonItem lines="none">
+                                    <IonAvatar slot="start">
+                                        <img src="https://cdn.dribbble.com/users/201599/screenshots/1545461/book.jpg?compress=1&resize=400x300" alt="imagebook" />
+                                    </IonAvatar>
+                                    <IonLabel>
+                                        <h2>book 1</h2>
+                                        <h3>description book</h3>
+                                    </IonLabel>
+                                </IonItem>
+                            </div>
+                            <div className="box">
+                                <IonItem lines="none">
+                                    <IonAvatar slot="start">
+                                        <img src="https://cdn.dribbble.com/users/201599/screenshots/1545461/book.jpg?compress=1&resize=400x300" alt="imagebook" />
+                                    </IonAvatar>
+                                    <IonLabel>
+                                        <h2>book 1</h2>
+                                        <h3>description book</h3>
+                                    </IonLabel>
+                                </IonItem>
+                            </div>
+                            <div className="box">
+                                <IonItem lines="none">
+                                    <IonAvatar slot="start">
+                                        <img src="https://cdn.dribbble.com/users/201599/screenshots/1545461/book.jpg?compress=1&resize=400x300" alt="imagebook" />
+                                    </IonAvatar>
+                                    <IonLabel>
+                                        <h2>book 1</h2>
+                                        <h3>description book</h3>
+                                    </IonLabel>
+                                </IonItem>
+                            </div>
+                        </CreateAnimation>
+                    </IonCol>
+                </IonRow>
+            )
+        });
 
         const authotRender = this.state.listAuthor.map((a, i) => {
             let booksList: any[] = a["books"];
@@ -242,31 +361,33 @@ export class AuthorList extends Component {
                     {alertas}
                     <IonList>
                         <IonGrid className="ion-no-padding">
-                        <IonButton color="primary" onClick={() => {
-                            let propsAnimated: any = this.state.animateDiv.status ? { property: 'height', fromValue: '0px', toValue:'50px' } : { property: 'height', fromValue: '50px', toValue:'0px' };
-                            console.log(this.state.animateDiv.status);
-                            console.log(propsAnimated);
+                        {authotRender}
+                        </IonGrid>
+                        <IonGrid className="ion-no-padding">
+                        { scrollLista }
+                        </IonGrid>
+                    </IonList>
+                    {/*<IonButton color="primary" onClick={() => {
                             this.setState({
                                 animateDiv: {
-                                    enabled: !this.state.animateDiv.enabled,
+                                    enabled: true,
                                     status: !this.state.animateDiv.status,
-                                    props: propsAnimated
+                                    props: {}
                                 }
                             });
                         }}>animate</IonButton>
                         <CreateAnimation 
                             duration={500}
-                            fromTo={[ this.state.animateDiv.props ]}
+                            fromTo={ this.state.animateDiv.props }
+                            direction={ this.state.animateDiv.status ? "normal" : "reverse" }
                             easing="ease-out"
+                            onFinish={ this.state.onFinish }
                             play={ this.state.animateDiv.enabled }
                         >
                             <div className="box">
                                 <h3>mensaje box</h3>
                             </div>
-                        </CreateAnimation>
-                        {authotRender}
-                        </IonGrid>
-                    </IonList>
+                    </CreateAnimation>*/}
                 </IonContent>
             </IonPage>
         );
