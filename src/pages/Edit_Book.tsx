@@ -4,6 +4,7 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import links from "../services/links";
 import "./Edit_Book.css";
+import FormEdithBook from "./forms/Form_Edith_Book";
 
 interface Props {
 
@@ -24,7 +25,9 @@ export class EdithBook extends React.Component<Props & RouteComponentProps<Route
         bookId: '',
         authorId: '',
         name: '',
-        description: ''
+        description: '',
+        bookObject: {},
+        postState: false
     };
 
 
@@ -39,7 +42,14 @@ export class EdithBook extends React.Component<Props & RouteComponentProps<Route
                 bookId: id,
                 authorId: data.data.d.author,
                 name: data.data.d.name,
-                description: data.data.d.description
+                description: data.data.d.description,
+                bookObject: {
+                    bookId: id,
+                    authorId: data.data.d.author,
+                    name: data.data.d.name,
+                    description: data.data.d.description
+                },
+                postState: true
             })
 
         } catch (error) {
@@ -97,7 +107,14 @@ export class EdithBook extends React.Component<Props & RouteComponentProps<Route
                     </IonToolbar>
                 </IonHeader>
                 <IonContent>
-                    <form>
+                    <IonGrid>
+                        <IonRow>
+                            <IonCol size="12">
+                                { this.state.postState ? <FormEdithBook author={ this.state.bookObject } /> : ''}
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    {/*<form>
                         <IonGrid>
                             <IonRow>
                                 <IonCol>
@@ -113,7 +130,7 @@ export class EdithBook extends React.Component<Props & RouteComponentProps<Route
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
-                    </form>
+                    </form>*/}
                 </IonContent>
             </IonPage>
         )

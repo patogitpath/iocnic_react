@@ -3,6 +3,7 @@ import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonH
 import { RouteComponentProps, RouteProps } from "react-router";
 import axios from "axios";
 import links from "../services/links";
+import FormEdithAuthor from "./forms/Form_Edith_Author";
 interface Props {
 
 };
@@ -18,7 +19,9 @@ export class EdithAuthor extends React.Component<Props & RouteComponentProps<Rou
         id: "",
         name: "",
         apellido: "",
-        edad: 0
+        edad: 0,
+        authorUpdate: {},
+        statePost: false
     };
 
     async ionViewWillEnter() {
@@ -36,7 +39,14 @@ export class EdithAuthor extends React.Component<Props & RouteComponentProps<Rou
                 id: id,
                 name: author.name,
                 apellido: author.apellido,
-                edad: author.edad
+                edad: author.edad,
+                authorUpdate: {
+                    id: id,
+                    name: author.name,
+                    apellido: author.apellido,
+                    edad: author.edad
+                },
+                statePost: true
             });
 
         } catch (error) {
@@ -85,7 +95,14 @@ export class EdithAuthor extends React.Component<Props & RouteComponentProps<Rou
                     </IonToolbar>
                 </IonHeader>
                 <IonContent>
-                    <form>
+                    <IonGrid>
+                        <IonRow>
+                            <IonCol size="12">
+                                { this.state.statePost ? (<FormEdithAuthor author={ this.state.authorUpdate } />) : '' }
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    {/*<form>
                         <IonGrid>
                             <IonRow>
                                 <IonCol>
@@ -105,7 +122,7 @@ export class EdithAuthor extends React.Component<Props & RouteComponentProps<Rou
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
-                    </form>
+                    </form>*/}
                 </IonContent>
             </IonPage>
         );

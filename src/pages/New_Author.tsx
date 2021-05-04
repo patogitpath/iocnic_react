@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import links from "../services/links";
 import { Redirect, RouteComponentProps } from "react-router-dom";
+import FormAuthor from "./forms/Form_Author";
 
 interface Props {
 
@@ -65,7 +66,14 @@ export class NewAuthor extends Component<Props & RouteComponentProps> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent>
-                    <form>
+                    <IonGrid>
+                        <IonRow>
+                            <IonCol size="12">
+                                <FormAuthor mensaje="mensaje desde el form" />
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    {/*<form>
                         <IonGrid>
                             <IonRow>
                                 <IonCol>
@@ -85,7 +93,7 @@ export class NewAuthor extends Component<Props & RouteComponentProps> {
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
-                    </form>
+                    </form>*/}
                 </IonContent>
             </IonPage>
         );

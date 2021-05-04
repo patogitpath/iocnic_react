@@ -9,11 +9,12 @@ const links = {
     postNewBook: "",
     getBookById: "",
     postUpdateBook: "",
-    deleteBook: ""
+    deleteBook: "",
+    deleteCompleteAuthor: ""
 };
 
-//links.baseUrl = "http://localhost:51548/WebService1.asmx/";
-links.baseUrl = "http://localhost:54774/WebAppVisualBasicWebService.asmx/";
+links.baseUrl = "http://localhost:51548/WebService1.asmx/";
+//links.baseUrl = "http://localhost:54774/WebAppVisualBasicWebService.asmx/";
 links.getAllAuthor = links.baseUrl + "GetDataAuthor";
 links.postNewAuthor = links.baseUrl + "PostNewAuthor";
 links.getAuthorById = links.baseUrl + "GetAuthorById";
@@ -24,5 +25,6 @@ links.postNewBook = links.baseUrl + "PostNewBook";
 links.getBookById = links.baseUrl + "GetBookById";
 links.postUpdateBook = links.baseUrl + "PostUpdateBook";
 links.deleteBook = links.baseUrl + "DeleteBook";
+links.deleteCompleteAuthor = links.baseUrl + "DeleteCompleteAuthor";
 
 export default links;

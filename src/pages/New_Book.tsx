@@ -3,6 +3,7 @@ import axios from "axios";
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import links from "../services/links";
+import FormBook from "./forms/Form_Book";
 import "./New_Book.css";
 
 interface Props {
@@ -22,17 +23,19 @@ export class NewBook extends React.Component<Props & RouteComponentProps<RoutePa
 
         idAuthor: "",
         name: "",
-        description: ""
+        description: "",
+        status: false
 
     };
 
     ionViewWillEnter() {
-
+        
         const { authorId } = this.props.match.params;
         this.setState({
             idAuthor: authorId,
             name: "",
-            description: ""
+            description: "",
+            status: true
         });
         
     }
@@ -80,7 +83,14 @@ export class NewBook extends React.Component<Props & RouteComponentProps<RoutePa
                     </IonToolbar>
                 </IonHeader>
                 <IonContent>
-                    <form>
+                    <IonGrid>
+                        <IonRow>
+                            <IonCol size="12">
+                                { this.state.status ? (<FormBook author={ this.state.idAuthor } />) : ''}
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    {/*<form>
                         <IonGrid>
                             <IonRow>
                                 <IonCol>
@@ -96,7 +106,7 @@ export class NewBook extends React.Component<Props & RouteComponentProps<RoutePa
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
-                    </form>
+                    </form>*/}
                 </IonContent>
             </IonPage>
         )
