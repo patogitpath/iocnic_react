@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar, withIonLifeCycle } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar, useIonLoading, withIonLifeCycle } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -16,12 +16,23 @@ const FormEdithAuthor: React.FC<Props> = (dataUrl) => {
 
     const history = useHistory();
 
+    const[ present, dismiss ] = useIonLoading();
+
     const [datos, setDatos] = useState({
         id: '',
         name: '',
         apellido: '',
-        edad: ''
+        edad: '',
+        dismissLoad: false
     });
+
+    const { handleSubmit, control, getValues, setValue, formState: { errors } } = useForm({ 
+        defaultValues: {
+            name: '',
+            apellido:  '',
+            edad: null
+        }
+     });
 
     useEffect(() => {
         setDatos({
@@ -29,23 +40,22 @@ const FormEdithAuthor: React.FC<Props> = (dataUrl) => {
             id: dataUrl.author.id,
             name: dataUrl.author.name,
             apellido: dataUrl.author.apellido,
-            edad: dataUrl.author.edad
+            edad: dataUrl.author.edad,
+            dismissLoad: false
         });
-    }, []);
+        
+        setValue("name", dataUrl.author.name);
+        setValue("apellido", dataUrl.author.apellido);
+        setValue("edad", dataUrl.author.edad);
 
-    const { handleSubmit, control, getValues, formState: { errors } } = useForm({ 
-        defaultValues: {
-            name: dataUrl.author.name,
-            apellido:  dataUrl.author.apellido,
-            edad: dataUrl.author.edad
-        }
-     });
+    }, [dataUrl.author]);
 
     const submitForm = async (data: any) => {
 
-
-        console.log(data);
-
+        setDatos({
+            ...datos,
+            dismissLoad: true
+        });
 
         const dataObject = {
             id: datos.id,
@@ -59,12 +69,16 @@ const FormEdithAuthor: React.FC<Props> = (dataUrl) => {
         try {
             
             const data = await axios.post(links.postUpdateAuthor, dataObject);
-            history.push("/");
 
         } catch (error) {
             console.log(error);
         }
 
+        setDatos({
+            ...datos,
+            dismissLoad: false
+        });
+        history.push("/");
 
     }
 
@@ -78,7 +92,7 @@ const FormEdithAuthor: React.FC<Props> = (dataUrl) => {
     }
 
     return(
-
+        <>
         <form onSubmit={ handleSubmit(submitForm) }>
             <IonItem className="ion-margin-bottom">
                 <IonLabel position="stacked">Name</IonLabel>
@@ -120,6 +134,14 @@ const FormEdithAuthor: React.FC<Props> = (dataUrl) => {
             { errors.edad ? (<p className="error-message">{ errors.edad.message }</p>) : '' }
             <IonButton type="submit" expand="block">save</IonButton>
         </form>
+        <IonLoading
+            cssClass='my-custom-class'
+            isOpen={ datos.dismissLoad }
+            onDidDismiss={() => { setDatos({...datos, dismissLoad: false}) }}
+            message={'Please wait...'}
+            duration={ undefined }
+        />
+        </>
     );
 
 }

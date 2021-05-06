@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar, withIonLifeCycle } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonMenuButton, IonMenuToggle, IonPage, IonRow, IonTitle, IonToolbar, useIonLoading, withIonLifeCycle } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -23,22 +23,21 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
 
     const history = useHistory();
 
+    const[ present, dismiss ] = useIonLoading();
+
     const [datos, setDatos] = useState({
         name: '',
         apellido: '',
-        edad: ''
+        edad: '',
+        touchedName: false,
+        touchedApellido: false,
+        touchedEdad: false,
+        isSubmitForm: false,
+        showLoading: true,
+        dismissLoad: false
     });
 
-    useEffect(() => {
-        setDatos({
-            ...datos,
-            name:'',
-            apellido: '',
-            edad: ''
-        })
-    }, []);
-
-    const { handleSubmit, control, getValues, formState: { errors } } = useForm({
+    const { handleSubmit, control, getValues, setValue, formState: { errors } } = useForm({
         defaultValues: {
             name: '',
             apellido:  '',
@@ -46,8 +45,29 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
         }
     });
 
+    useEffect(() => {
+        setDatos({
+            ...datos,
+            name:'',
+            apellido: '',
+            edad: '',
+            touchedName: false,
+            touchedApellido: false,
+            touchedEdad: false,
+            isSubmitForm: false,
+            dismissLoad: false
+        });
+        setValue("name", "");
+        setValue("apellido", "");
+        setValue("edad", null);
+    }, [dataUrl]);
+
     const submitForm = async (data: any) => {
 
+        setDatos({
+            ...datos,
+            dismissLoad: true
+        });
 
         let author: any = {
             name: data.name,
@@ -57,15 +77,19 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
 
         try {
 
-            const data = await axios.post(links.postNewAuthor, author);
-            history.push("/");
-
+            const dataResponse = await axios.post(links.postNewAuthor, author);
 
         } catch (error) {
             
             console.log(error);
 
         }
+
+        setDatos({
+            ...datos,
+            dismissLoad: false
+        });
+        history.push("/");
 
     }
 
@@ -75,6 +99,15 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
 
         
         return true;
+
+    }
+
+    const touchedFormstate = (control: any) => {
+
+        setDatos({
+            ...datos,
+            [control]: true
+        });
 
     }
 
@@ -123,7 +156,7 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
             <IonItem className="ion-margin-bottom">
                 <IonLabel position="stacked">Name</IonLabel>
                 <Controller
-                    render={({ field: { onChange, onBlur, value }}) => (<IonInput name="name" type="text" onIonChange={ onChange } placeholder="name" value={ value } />)}
+                    render={({ field: { onChange, onBlur, value }}) => (<IonInput name="name" type="text" onIonChange={ onChange } onIonFocus={() => { touchedFormstate('touchedName') }} placeholder="name" value={ value } />)}
                     control={control}
                     name="name"
                     rules={{
@@ -132,12 +165,12 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
                     }}
                 />
             </IonItem>
-            { errors.name ? (<p className="error-message">{ errors.name.message }</p>) : '' }
-            { errors.name && errors.name.type === "validate" ? (<p>{ "nombre is not equals" }</p>) : '' }
+            { datos.touchedName && errors.name || datos.isSubmitForm && errors.name ? (<p className="error-message">{ errors.name.message }</p>) : '' }
+            { datos.touchedName && errors.name && errors.name.type === "validate" || datos.isSubmitForm && errors.name && errors.name.type === "validate" ? (<p>{ "nombre is not equals" }</p>) : '' }
             <IonItem className="ion-margin-bottom">
                 <IonLabel position="stacked">Apellido</IonLabel>
                 <Controller
-                    render={ ({ field: { onChange, onBlur, value }}) => (<IonInput name="apellido" type="text" onIonChange={ onChange } placeholder="apellido" value={ value }></IonInput>)}
+                    render={ ({ field: { onChange, onBlur, value }}) => (<IonInput name="apellido" type="text" onIonChange={ onChange } onIonFocus={() => { touchedFormstate('touchedApellido') }} placeholder="apellido" value={ value }></IonInput>)}
                     control={ control }
                     name="apellido"
                     rules={{
@@ -145,11 +178,11 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
                     }}
                 ></Controller>
             </IonItem>
-            { errors.apellido ? (<p className="error-message">{ errors.apellido.message }</p>) : '' }
+            { datos.touchedApellido &&  errors.apellido || datos.isSubmitForm && errors.apellido ? (<p className="error-message">{ errors.apellido.message }</p>) : '' }
             <IonItem className="ion-margin-bottom">
                 <IonLabel position="stacked">Edad</IonLabel>
                 <Controller
-                    render={ ({ field: { onChange, onBlur, value } }) => (<IonInput name="edad" type="number" onIonChange={ onChange } placeholder="edad" value={ value }></IonInput>)}
+                    render={ ({ field: { onChange, onBlur, value } }) => (<IonInput name="edad" type="number" onIonChange={ onChange } onIonFocus={() => { touchedFormstate('touchedEdad') }} placeholder="edad" value={ value }></IonInput>)}
                     control={ control }
                     name="edad"
                     rules={{
@@ -157,9 +190,16 @@ const FormAuthor: React.FC<Props> = (dataUrl) => {
                     }}
                 ></Controller>
             </IonItem>
-            { errors.edad ? (<p className="error-message">{ errors.edad.message }</p>) : '' }
-            <IonButton type="submit" expand="block">save</IonButton>
+            {  datos.touchedEdad && errors.edad || datos.isSubmitForm && errors.edad ? (<p className="error-message">{ errors.edad.message }</p>) : '' }
+            <IonButton type="submit" expand="block" onClick={ () => { touchedFormstate('isSubmitForm')} } >save</IonButton>
         </form>
+        <IonLoading
+            cssClass='my-custom-class'
+            isOpen={ datos.dismissLoad }
+            onDidDismiss={() => { setDatos({...datos, dismissLoad: false}) }}
+            message={'Please wait...'}
+            duration={ undefined }
+        />
         </>
     );
 
