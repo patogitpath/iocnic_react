@@ -31,7 +31,7 @@ export class AuthorList extends Component {
                     status: this.state.animateDiv.status,
                     props: {}
                 }
-            });            
+            });
         }},
         onFinishArray: [],
         onFinishArrayAuthorList: [],
@@ -40,9 +40,10 @@ export class AuthorList extends Component {
 
     async ionViewWillEnter() {
 
+        console.log("mensaje desde la lista");
 
         try {
-            
+
             let listAuthorComplete: any[] = [];
             const data = await axios.post(links.getAllAuthor, {});
             const arrayAuthor: any[] = data.data.d;
@@ -51,7 +52,7 @@ export class AuthorList extends Component {
             let onFinishArrayAnimated: any[] = [];
             let onFinishArrayAnimatedListAuthor: any[] = [];
             arrayAuthor.map(async (author, i) => {
-                listAuthorComplete.push({ 
+                listAuthorComplete.push({
                     authorList: author.author,
                     books: author.bookList,
                     animated: {
@@ -96,7 +97,7 @@ export class AuthorList extends Component {
                             props: {}
                         }
                     };
-            
+
                     let srollList: any[] = this.state.listAuthor;
                     srollList[i] = objectAnimatedPosition;
                     this.setState({
@@ -124,7 +125,7 @@ export class AuthorList extends Component {
     async deleteAuthor(id: any) {
 
         try {
-            
+
             const deleteData = {
                 "id": id
             };
@@ -134,7 +135,7 @@ export class AuthorList extends Component {
             this.setState({
                 listAuthor: this.state.listAuthor.filter((a,i) => {
                     return a["authorList"]["id"] !== id
-                })                
+                })
             });
         } catch (error) {
             console.log(error);
@@ -143,10 +144,10 @@ export class AuthorList extends Component {
     }
 
     async deleteBook(id: any, position: any) {
-        
+
 
         try {
-            
+
             const data = await axios.post(links.deleteBook, { id: id });
             console.log(data);
             let bookArray: any[] = this.state.listAuthor[position]["books"];
@@ -192,7 +193,7 @@ export class AuthorList extends Component {
     }
 
     playAnimationAuthorList(index: any) {
-        
+
         let objectAnimatedPosition: any = {
             authorList: this.state.listAuthor[index]["authorList"],
             books: this.state.listAuthor[index]["books"],
@@ -267,7 +268,7 @@ export class AuthorList extends Component {
             ></IonAlert>
             </>
         );
-        
+
         const scrollLista = this.state.scrollList.map((author, index) => {
             return(
                 <IonRow key={index}>
@@ -291,7 +292,7 @@ export class AuthorList extends Component {
                             easing="ease-out"
                             play={ author["animated"]["enabled"] }
                             onFinish={ this.state.onFinishArray[index] }
-                        >   
+                        >
                             <div className="box">
                                 <IonItem lines="none">
                                     <IonAvatar slot="start">
@@ -348,7 +349,7 @@ export class AuthorList extends Component {
                             <IonButtons slot="end">
                                 <Link to={"/edith-author/" + a["authorList"]["id"]} color="success">
                                     <IonButton fill="clear" color="success">
-                                    <IonIcon icon={createOutline}></IonIcon>    
+                                    <IonIcon icon={createOutline}></IonIcon>
                                     </IonButton>
                                 </Link>
                                 <IonButton fill="clear" color="danger" onClick={() => { this.setState({alertState: true, authorId: a["authorList"]["id"]}) }}>
@@ -440,7 +441,7 @@ export class AuthorList extends Component {
                                 }
                             });
                         }}>animate</IonButton>
-                        <CreateAnimation 
+                        <CreateAnimation
                             duration={500}
                             fromTo={ this.state.animateDiv.props }
                             direction={ this.state.animateDiv.status ? "normal" : "reverse" }
@@ -457,7 +458,7 @@ export class AuthorList extends Component {
         );
 
     }
-    
+
 }
 
 export default withIonLifeCycle(AuthorList);
